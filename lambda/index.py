@@ -4,8 +4,9 @@ import os
 import boto3
 import re  # 正規表現モジュールをインポート
 from botocore.exceptions import ClientError
+import urllib.request
 
-
+FASTAPI_URL = "https://7ccd-34-16-187-246.ngrok-free.app/generate"
 # Lambda コンテキストからリージョンを抽出する関数
 def extract_region_from_arn(arn):
     # ARN 形式: arn:aws:lambda:region:account-id:function:function-name
@@ -88,6 +89,16 @@ def lambda_handler(event, context):
             body=json.dumps(request_payload),
             contentType="application/json"
         )
+        headers = {
+            'Content-Type': 'application/json'
+        }
+        req = urllib.request.Request(
+            FASTAPI_URL,
+            data=json.dumps(request_payload).encode('utf-8'),  # JSONをUTF-8にエンコード
+            headers=headers,
+            method="POST"
+        )
+        response = urllib.request.urlopen(req)
         
         # レスポンスを解析
         response_body = json.loads(response['body'].read())
